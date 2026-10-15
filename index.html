@@ -1,0 +1,661 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clic rápido · Kermés</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --noche: #1b1145;
+    --noche-2: #36207a;
+    --papel: #fff5df;
+    --papel-2: #ffe9c2;
+    --tinta: #2b1810;
+    --rosa: #e6007e;
+    --naranja: #ff7a00;
+    --amarillo: #ffc61a;
+    --verde: #00a651;
+    --turquesa: #00b0d8;
+    --morado: #7b2e9b;
+    --rojo: #e3262f;
+    --fuente-titulo: "Lilita One", "Arial Rounded MT Bold", system-ui, sans-serif;
+    --fuente-texto: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body { margin: 0; }
+
+  body {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    font-family: var(--fuente-texto);
+    color: var(--tinta);
+    background-color: var(--noche);
+    background-image:
+      radial-gradient(circle at 50% -10%, rgba(255, 198, 26, .28), transparent 45%),
+      radial-gradient(rgba(255, 255, 255, .12) 1px, transparent 1.5px),
+      linear-gradient(180deg, var(--noche-2), var(--noche) 70%);
+    background-size: auto, 26px 26px, auto;
+    touch-action: manipulation;
+  }
+
+  /* ---------- Papel picado ---------- */
+  .papel-picado { position: relative; flex: none; height: 88px; overflow: hidden; }
+  .cuerda {
+    position: absolute; inset: 9px 0 auto; height: 3px;
+    background: #f4e4c4; border-radius: 2px;
+    box-shadow: 0 2px 2px rgba(0, 0, 0, .35);
+  }
+  .banderines { position: absolute; top: 10px; left: 50%; display: flex; gap: 6px; translate: -50% 0; }
+  .banderin {
+    flex: none; width: 54px; height: 63px;
+    transform-origin: 50% 0;
+    animation: mecer 2.8s ease-in-out infinite alternate;
+    filter: drop-shadow(0 4px 3px rgba(0, 0, 0, .35));
+  }
+  .banderin:nth-child(odd) { animation-duration: 3.4s; }
+  @keyframes mecer { from { rotate: -5deg; } to { rotate: 5deg; } }
+
+  /* ---------- Tarjetas tipo lotería ---------- */
+  .escenario { flex: 1; display: grid; place-items: start center; padding: 8px 27px 40px; }
+  .tarjeta {
+    position: relative;
+    width: 100%; max-width: 620px;
+    margin-top: 10px;
+    padding: 28px 28px 30px;
+    text-align: center;
+    background: var(--papel);
+    background-image: radial-gradient(circle at 20% 10%, rgba(255, 255, 255, .7), transparent 40%);
+    border: 4px solid var(--tinta);
+    border-radius: 20px;
+    box-shadow: 0 0 0 7px var(--rosa), 0 0 0 11px var(--tinta), 0 22px 50px rgba(0, 0, 0, .5);
+  }
+  .numero {
+    position: absolute; top: 12px; left: 16px;
+    font-family: var(--fuente-titulo); font-size: 28px; line-height: 1;
+  }
+  .cintillo {
+    display: inline-block; margin: 0 0 6px; padding: 5px 16px;
+    font-weight: 900; font-size: 13px; letter-spacing: .14em; text-transform: uppercase;
+    background: var(--turquesa);
+    border: 3px solid var(--tinta); border-radius: 999px;
+    box-shadow: 0 3px 0 var(--tinta);
+  }
+  .titulo {
+    margin: 8px 0 4px;
+    font-family: var(--fuente-titulo); font-weight: 400;
+    font-size: clamp(42px, 11vw, 72px); line-height: 1;
+    color: var(--rosa);
+    text-shadow: 3px 3px 0 var(--amarillo), 6px 6px 0 var(--tinta);
+  }
+  .titulo-chico { font-size: clamp(32px, 8vw, 50px); }
+  .instrucciones { max-width: 44ch; margin: 8px auto 18px; font-size: 17px; line-height: 1.5; font-weight: 600; }
+
+  /* ---------- Formulario ---------- */
+  .bienvenida { margin: 0 0 16px; font-size: 20px; font-weight: 800; overflow-wrap: anywhere; }
+  .bienvenida strong { color: var(--rosa); }
+  .campo { display: grid; gap: 8px; max-width: 340px; margin: 0 auto 18px; text-align: left; }
+  .campo label { font-weight: 900; font-size: 15px; }
+  .campo input {
+    font: 700 18px var(--fuente-texto);
+    padding: 12px 14px;
+    color: var(--tinta); background: #fff;
+    border: 3px solid var(--tinta); border-radius: 12px;
+  }
+  .campo input:focus { outline: 3px solid var(--turquesa); outline-offset: 2px; }
+  .campo input[aria-invalid="true"] { border-color: var(--rojo); }
+  .error-campo { margin: 0; color: var(--rojo); font-weight: 800; font-size: 14px; }
+
+  /* ---------- Botones ---------- */
+  .boton {
+    font: 400 20px/1 var(--fuente-titulo); letter-spacing: .02em;
+    padding: 14px 26px 13px;
+    color: var(--tinta); background: var(--papel-2);
+    border: 3px solid var(--tinta); border-radius: 14px;
+    box-shadow: 0 5px 0 var(--tinta);
+    cursor: pointer;
+    transition: translate .08s, box-shadow .08s;
+  }
+  .boton:hover { filter: brightness(1.05); }
+  .boton:active { translate: 0 3px; box-shadow: 0 2px 0 var(--tinta); }
+  .boton:focus-visible { outline: 3px solid var(--turquesa); outline-offset: 3px; }
+  .boton-primario { color: #fff; background: var(--rosa); text-shadow: 0 2px 0 rgba(0, 0, 0, .25); }
+
+  /* ---------- Diana (el botón del juego) ---------- */
+  .diana {
+    --d: 78px;
+    position: absolute; left: 0; top: 0; z-index: 1;
+    width: var(--d); height: var(--d);
+    padding: 0;
+    border: 3px solid var(--tinta); border-radius: 50%;
+    background: radial-gradient(circle closest-side,
+      var(--amarillo) 0 20%, var(--tinta) 20% 25%, var(--rojo) 25% 45%,
+      #fff 45% 65%, var(--rojo) 65% 85%, #fff 85%);
+    box-shadow: 0 5px 0 var(--tinta), 0 10px 18px rgba(0, 0, 0, .25);
+    cursor: crosshair;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  .diana.diana-muestra {
+    --d: 96px;
+    position: static; display: block;
+    margin: 14px auto 6px;
+    animation: latido 1.4s ease-in-out infinite;
+  }
+  @keyframes latido { 50% { scale: 1.08; } }
+
+  /* ---------- Pantalla de juego ---------- */
+  .tarjeta-juego { padding: 20px; }
+  .hud { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; }
+  .boleto {
+    position: relative;
+    display: grid; min-width: 112px;
+    padding: 8px 18px 10px;
+    background: var(--amarillo);
+    border: 3px solid var(--tinta); border-radius: 10px;
+    box-shadow: 0 4px 0 var(--tinta);
+  }
+  .boleto::before, .boleto::after {
+    content: ""; position: absolute; top: 50%;
+    width: 20px; height: 20px; margin-top: -10px;
+    background: var(--papel);
+    border: 3px solid var(--tinta); border-radius: 50%;
+  }
+  .boleto::before { left: -11px; clip-path: inset(0 0 0 50%); }
+  .boleto::after { right: -11px; clip-path: inset(0 50% 0 0); }
+  .boleto-clics { color: #fff; background: var(--morado); }
+  .boleto-etiqueta { font-weight: 900; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; }
+  .boleto-valor { font-family: var(--fuente-titulo); font-size: 40px; line-height: 1; font-variant-numeric: tabular-nums; }
+  .boleto-valor small { margin-left: 2px; font-size: 20px; }
+  .hud-jugador { margin: 0; font-weight: 800; font-size: 15px; overflow-wrap: anywhere; }
+  .hud-jugador strong { display: block; font-size: 18px; color: var(--rosa); }
+
+  .barra { height: 14px; margin: 14px 0; overflow: hidden; background: #fff; border: 3px solid var(--tinta); border-radius: 999px; }
+  .barra-relleno {
+    height: 100%; transform-origin: left;
+    background: repeating-linear-gradient(-45deg, var(--verde) 0 12px, #1fc06a 12px 24px);
+  }
+  .apurado .barra-relleno { background: repeating-linear-gradient(-45deg, var(--rojo) 0 12px, #ff5a5f 12px 24px); }
+  .apurado .boleto-tiempo { color: #fff; background: var(--rojo); }
+
+  .arena {
+    position: relative;
+    height: clamp(300px, 56vh, 460px);
+    overflow: hidden;
+    background: repeating-linear-gradient(90deg, #fff7e6 0 34px, #ffe1ea 34px 68px);
+    border: 4px solid var(--tinta); border-radius: 16px;
+    user-select: none; -webkit-user-select: none;
+    touch-action: manipulation;
+  }
+  /* Faldón de carpa de feria */
+  .arena::before {
+    content: ""; position: absolute; inset: 0 0 auto; height: 18px; pointer-events: none;
+    background: radial-gradient(circle at 50% 0, var(--rosa) 0 15px, var(--tinta) 15px 17px, transparent 17.5px) 0 0 / 34px 18px repeat-x;
+  }
+  .aviso {
+    position: absolute; inset: 0; z-index: 2;
+    display: grid; place-items: center;
+    pointer-events: none;
+    font-family: var(--fuente-titulo); font-size: clamp(60px, 17vw, 120px);
+    color: var(--rosa);
+    text-shadow: 4px 4px 0 var(--amarillo), 8px 8px 0 var(--tinta);
+  }
+  .mas-uno {
+    position: absolute; z-index: 3; pointer-events: none;
+    translate: -50% -50%;
+    font-family: var(--fuente-titulo); font-size: 26px;
+    color: var(--verde); text-shadow: 2px 2px 0 var(--tinta);
+  }
+
+  /* ---------- Resultado ---------- */
+  .final-jugador { margin: 6px 0 14px; font-size: 18px; font-weight: 700; overflow-wrap: anywhere; }
+  .final-jugador strong { color: var(--rosa); }
+  .roseta {
+    display: grid; place-content: center;
+    width: 170px; aspect-ratio: 1;
+    margin: 0 auto 20px;
+    border: 4px solid var(--tinta); border-radius: 50%;
+    background:
+      radial-gradient(circle closest-side, var(--amarillo) 0 70%, var(--tinta) 70% 73%, transparent 73%),
+      repeating-conic-gradient(var(--rosa) 0 15deg, var(--naranja) 15deg 30deg);
+    box-shadow: 0 6px 0 var(--tinta);
+  }
+  .roseta span { font-family: var(--fuente-titulo); font-size: 64px; line-height: .9; }
+  .roseta small { font-weight: 900; font-size: 14px; letter-spacing: .14em; text-transform: uppercase; }
+
+  .estado {
+    display: inline-flex; align-items: center; gap: 10px;
+    margin: 0 auto 14px; padding: 10px 18px;
+    font-weight: 900; font-size: 17px;
+    background: #fff;
+    border: 3px solid var(--tinta); border-radius: 999px;
+  }
+  .estado-icono {
+    flex: none; display: grid; place-items: center;
+    width: 26px; height: 26px; border-radius: 50%;
+    font-size: 15px; color: #fff;
+  }
+  .estado[data-estado="guardando"] .estado-icono { border: 4px solid var(--papel-2); border-top-color: var(--rosa); animation: girar .8s linear infinite; }
+  .estado[data-estado="ok"] { background: #d9f7e5; }
+  .estado[data-estado="ok"] .estado-icono { background: var(--verde); }
+  .estado[data-estado="ok"] .estado-icono::before { content: "✓"; }
+  .estado[data-estado="error"] { background: #ffe0e0; }
+  .estado[data-estado="error"] .estado-icono { background: var(--rojo); }
+  .estado[data-estado="error"] .estado-icono::before { content: "!"; }
+  @keyframes girar { to { rotate: 360deg; } }
+
+  .estado-detalle {
+    margin: 0 0 18px; padding: 12px 14px;
+    text-align: left; white-space: pre-wrap; overflow-wrap: anywhere;
+    font: 600 14px/1.45 ui-monospace, Consolas, monospace;
+    color: #7a0d12; background: #fff0f0;
+    border: 2px dashed var(--rojo); border-radius: 12px;
+  }
+  .acciones { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+
+  /* ---------- Etiqueta "Modo práctica" (sello sobre la tarjeta visible) ---------- */
+  .modo-practica {
+    position: absolute; top: -16px; right: 18px; z-index: 4;
+    margin: 0; padding: 6px 14px 5px;
+    font: 400 15px/1 var(--fuente-titulo); letter-spacing: .04em;
+    color: var(--tinta); background: var(--naranja);
+    border: 3px solid var(--tinta); border-radius: 8px;
+    box-shadow: 0 3px 0 var(--tinta);
+    rotate: 4deg;
+  }
+  /* En la pantalla de juego el sello taparía el boleto de clics: le damos aire arriba. */
+  .tarjeta-juego:has(> .modo-practica:not([hidden])) { padding-top: 32px; }
+
+  /* ---------- Teléfono ---------- */
+  @media (max-width: 520px) {
+    .escenario { padding-inline: 24px; }
+    .tarjeta {
+      padding: 24px 16px 26px;
+      box-shadow: 0 0 0 5px var(--rosa), 0 0 0 8px var(--tinta), 0 16px 36px rgba(0, 0, 0, .5);
+    }
+    .tarjeta-juego { padding: 14px; }
+    .hud { grid-template-columns: 1fr 1fr; }
+    .hud-jugador { grid-column: 1 / -1; grid-row: 2; }
+    .boleto { min-width: 0; }
+    .boleto-valor { font-size: 34px; }
+    .diana { --d: 66px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .banderin, .diana.diana-muestra { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="banderin" viewBox="0 0 60 70">
+    <path fill="currentColor" fill-rule="evenodd" d="
+      M0 0H60V60L55 67L50 60L45 67L40 60L35 67L30 60L25 67L20 60L15 67L10 60L5 67L0 60Z
+      M25 30a5 5 0 1 0 10 0a5 5 0 1 0-10 0Z
+      M26.5 18.5a3.5 3.5 0 1 0 7 0a3.5 3.5 0 1 0-7 0Z
+      M26.5 41.5a3.5 3.5 0 1 0 7 0a3.5 3.5 0 1 0-7 0Z
+      M15 30a3.5 3.5 0 1 0 7 0a3.5 3.5 0 1 0-7 0Z
+      M38 30a3.5 3.5 0 1 0 7 0a3.5 3.5 0 1 0-7 0Z
+      M39 18.5L41.5 21L39 23.5L36.5 21Z
+      M21 18.5L23.5 21L21 23.5L18.5 21Z
+      M39 36.5L41.5 39L39 41.5L36.5 39Z
+      M21 36.5L23.5 39L21 41.5L18.5 39Z
+      M30 4L33 8L30 12L27 8Z
+      M9 5L13 9L9 13L5 9Z
+      M51 5L55 9L51 13L47 9Z
+      M9 47L13 51L9 55L5 51Z
+      M51 47L55 51L51 55L47 51Z
+      M7 30a2 2 0 1 0 4 0a2 2 0 1 0-4 0Z
+      M49 30a2 2 0 1 0 4 0a2 2 0 1 0-4 0Z
+      M14.5 56a1.5 1.5 0 1 0 3 0a1.5 1.5 0 1 0-3 0Z
+      M21.5 56a1.5 1.5 0 1 0 3 0a1.5 1.5 0 1 0-3 0Z
+      M28.5 56a1.5 1.5 0 1 0 3 0a1.5 1.5 0 1 0-3 0Z
+      M35.5 56a1.5 1.5 0 1 0 3 0a1.5 1.5 0 1 0-3 0Z
+      M42.5 56a1.5 1.5 0 1 0 3 0a1.5 1.5 0 1 0-3 0Z"/>
+  </symbol>
+</svg>
+
+<header class="papel-picado" aria-hidden="true">
+  <div class="cuerda"></div>
+  <div class="banderines" id="banderines"></div>
+</header>
+
+<main class="escenario">
+
+  <section class="tarjeta" id="pantalla-inicio">
+    <p class="modo-practica" id="modo-practica" hidden>Modo práctica</p>
+    <span class="numero" aria-hidden="true">10</span>
+    <p class="cintillo">★ Gran Kermés ★</p>
+    <h1 class="titulo">¡Clic Rápido!</h1>
+    <div class="diana diana-muestra" aria-hidden="true"></div>
+    <p class="instrucciones">
+      Tienes <strong>10 segundos</strong> para darle clic al blanco todas las veces que puedas.
+      ¡Ojo! Cada vez que le atinas, cambia de lugar.
+    </p>
+    <form id="form-inicio" novalidate>
+      <p class="bienvenida" id="bienvenida" hidden>¡Hola, <strong id="nombre-url"></strong>! Te toca jugar.</p>
+      <div class="campo" id="campo-nombre" hidden>
+        <label for="nombre">Tu Enterprise ID</label>
+        <input id="nombre" name="enterprise-id" type="text" maxlength="60" placeholder="nombre.apellido"
+               autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false"
+               aria-describedby="error-nombre">
+        <p class="error-campo" id="error-nombre" hidden></p>
+      </div>
+      <button class="boton boton-primario" type="submit">¡Ándale, a jugar!</button>
+    </form>
+  </section>
+
+  <section class="tarjeta tarjeta-juego" id="pantalla-juego" hidden>
+    <div class="hud">
+      <div class="boleto boleto-tiempo">
+        <span class="boleto-etiqueta">Tiempo</span>
+        <span class="boleto-valor"><span id="tiempo">10.0</span><small>s</small></span>
+      </div>
+      <p class="hud-jugador">Juega <strong id="nombre-juego"></strong></p>
+      <div class="boleto boleto-clics">
+        <span class="boleto-etiqueta">Clics</span>
+        <span class="boleto-valor" id="clics">0</span>
+      </div>
+    </div>
+    <div class="barra" aria-hidden="true"><div class="barra-relleno" id="barra"></div></div>
+    <div class="arena" id="arena">
+      <button class="diana" id="diana" type="button" aria-label="¡Dale clic!" hidden></button>
+      <div class="aviso" id="aviso" aria-live="assertive" hidden></div>
+    </div>
+  </section>
+
+  <section class="tarjeta" id="pantalla-final" hidden>
+    <p class="cintillo">★ Gran Kermés ★</p>
+    <h2 class="titulo titulo-chico">¡Se acabó el tiempo!</h2>
+    <p class="final-jugador"><strong id="nombre-final"></strong>, lograste:</p>
+    <div class="roseta"><span id="puntaje-final">0</span><small id="puntaje-unidad">clics</small></div>
+    <div class="estado" id="estado" role="status" aria-live="polite">
+      <span class="estado-icono" aria-hidden="true"></span>
+      <span id="estado-texto"></span>
+    </div>
+    <pre class="estado-detalle" id="estado-detalle" hidden></pre>
+    <div class="acciones">
+      <button class="boton" id="btn-reintentar" type="button" hidden>Reintentar guardado</button>
+      <button class="boton boton-primario" id="btn-otra-vez" type="button" hidden>Jugar otra vez</button>
+    </div>
+  </section>
+
+</main>
+
+<script type="module">
+  const SUPABASE_URL = 'https://gcbrqblywzllvfvtrrmj.supabase.co';
+  // Clave publicable: está hecha para vivir en el navegador; las políticas RLS de la tabla deciden qué se permite.
+  const SUPABASE_KEY = 'sb_publishable_cNWGPbdzmtPwPEsUdz5wtQ_cc3EhtAp';
+  // Identificador para la consola: debe ser exactamente el nombre del repo (el título visible es "Clic rápido").
+  const JUEGO = 'kermese-juego-clicrapido';
+  const DURACION_MS = 10_000;
+
+  // Import dinámico: si el CDN falla se puede jugar igual, y el error aparece al guardar.
+  const clientePromise = import('https://esm.sh/@supabase/supabase-js@2').then(({ createClient }) =>
+    createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+    })
+  );
+  clientePromise.catch(() => {}); // el error se reporta en guardar()
+
+  const $ = (id) => document.getElementById(id);
+  const pantallas = { inicio: $('pantalla-inicio'), juego: $('pantalla-juego'), final: $('pantalla-final') };
+  const arena = $('arena');
+  const diana = $('diana');
+  const aviso = $('aviso');
+  const sinMovimiento = matchMedia('(prefers-reduced-motion: reduce)');
+
+  const parametros = new URLSearchParams(location.search);
+  // Solo es partida oficial si la URL trae exactamente oficial=1; cualquier otra cosa es práctica.
+  const OFICIAL = parametros.get('oficial') === '1';
+  let jugador = (parametros.get('jugador') ?? '').trim();
+  let clics = 0;
+  let puntajeFinal = 0;
+  let inicio = 0;
+  let jugando = false;
+  let guardando = false;
+  let rafId = 0;
+  let finTimeout = 0;
+  let avisoTimeout = 0;
+  let ultimaPos = { x: -1e3, y: -1e3 };
+
+  const etiquetaPractica = $('modo-practica');
+  etiquetaPractica.hidden = OFICIAL;
+
+  function mostrar(nombre) {
+    for (const [clave, el] of Object.entries(pantallas)) el.hidden = clave !== nombre;
+    // Una sola etiqueta que viaja con la tarjeta visible.
+    if (!OFICIAL) pantallas[nombre].prepend(etiquetaPractica);
+  }
+
+  function animar(el, cuadros, opciones) {
+    return sinMovimiento.matches ? null : el.animate(cuadros, opciones);
+  }
+
+  // ---------- Papel picado ----------
+  const COLORES = ['#e6007e', '#ff7a00', '#ffc61a', '#00a651', '#00b0d8', '#7b2e9b', '#e3262f'];
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+
+  function colgarBanderines() {
+    const cont = $('banderines');
+    const n = Math.ceil(innerWidth / 60) + 2;
+    if (cont.childElementCount === n) return;
+    cont.replaceChildren(...Array.from({ length: n }, (_, i) => {
+      const svg = document.createElementNS(SVG_NS, 'svg');
+      svg.setAttribute('class', 'banderin');
+      svg.style.color = COLORES[i % COLORES.length];
+      svg.style.animationDelay = `${-((i * 0.37) % 3)}s`;
+      const use = document.createElementNS(SVG_NS, 'use');
+      use.setAttribute('href', '#banderin');
+      svg.append(use);
+      return svg;
+    }));
+  }
+
+  // ---------- Inicio ----------
+  // El jugador es el Enterprise ID de Accenture: solo minúsculas, números y puntos.
+  function validarEnterpriseId(valor) {
+    if (!valor) return 'Escribe tu Enterprise ID para empezar.';
+    if (!/^[a-z0-9.]+$/.test(valor)) return 'Usa solo minúsculas, números y puntos (ej. juan.perez).';
+    return '';
+  }
+
+  if (jugador) {
+    $('nombre-url').textContent = jugador;
+    $('bienvenida').hidden = false;
+  } else {
+    $('campo-nombre').hidden = false;
+  }
+
+  $('form-inicio').addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!$('campo-nombre').hidden) {
+      const input = $('nombre');
+      const enterpriseId = input.value.trim();
+      const error = validarEnterpriseId(enterpriseId);
+      $('error-nombre').textContent = error;
+      $('error-nombre').hidden = !error;
+      input.setAttribute('aria-invalid', String(Boolean(error)));
+      if (error) {
+        input.focus();
+        return;
+      }
+      jugador = enterpriseId;
+    }
+    prepararJuego();
+  });
+
+  // ---------- Juego ----------
+  function anunciar(texto, ocultarEn = 0) {
+    clearTimeout(avisoTimeout);
+    aviso.textContent = texto;
+    aviso.hidden = false;
+    animar(aviso, [{ scale: 1.6, opacity: 0 }, { scale: 1, opacity: 1 }], { duration: 250, easing: 'ease-out' });
+    if (ocultarEn) avisoTimeout = setTimeout(() => { aviso.hidden = true; }, ocultarEn);
+  }
+
+  function prepararJuego() {
+    clics = 0;
+    $('nombre-juego').textContent = jugador;
+    $('clics').textContent = '0';
+    actualizarTiempo(DURACION_MS);
+    diana.hidden = true;
+    mostrar('juego');
+    const pasos = ['3', '2', '1'];
+    pasos.forEach((paso, i) => setTimeout(() => anunciar(paso), i * 700));
+    setTimeout(empezar, pasos.length * 700);
+  }
+
+  function empezar() {
+    anunciar('¡Ya!', 500);
+    clics = 0;
+    diana.hidden = false;
+    moverDiana();
+    inicio = performance.now();
+    jugando = true;
+    rafId = requestAnimationFrame(cuadro);
+    finTimeout = setTimeout(terminar, DURACION_MS); // respaldo si la pestaña deja de pintar
+  }
+
+  function cuadro() {
+    const restante = DURACION_MS - (performance.now() - inicio);
+    if (restante <= 0) {
+      terminar();
+      return;
+    }
+    actualizarTiempo(restante);
+    rafId = requestAnimationFrame(cuadro);
+  }
+
+  function actualizarTiempo(restante) {
+    $('tiempo').textContent = (Math.ceil(restante / 100) / 10).toFixed(1);
+    $('barra').style.transform = `scaleX(${restante / DURACION_MS})`;
+    pantallas.juego.classList.toggle('apurado', restante <= 3000);
+  }
+
+  function moverDiana() {
+    const maxX = Math.max(0, arena.clientWidth - diana.offsetWidth);
+    const maxY = Math.max(0, arena.clientHeight - diana.offsetHeight);
+    const distanciaMin = Math.min(maxX, maxY) * 0.4;
+    let x, y, intentos = 0;
+    do {
+      x = Math.random() * maxX;
+      y = Math.random() * maxY;
+    } while (++intentos < 15 && Math.hypot(x - ultimaPos.x, y - ultimaPos.y) < distanciaMin);
+    ultimaPos = { x, y };
+    diana.style.translate = `${x}px ${y}px`;
+    // Pop breve y sutil: la diana no debe encogerse tanto que castigue a quien da clic rápido.
+    animar(diana, [{ scale: 0.8 }, { scale: 1 }], { duration: 110, easing: 'ease-out' });
+  }
+
+  function mostrarMasUno(clientX, clientY) {
+    if (sinMovimiento.matches) return;
+    const caja = arena.getBoundingClientRect();
+    const chispa = document.createElement('span');
+    chispa.className = 'mas-uno';
+    chispa.textContent = '+1';
+    chispa.style.left = `${clientX - caja.left - arena.clientLeft}px`;
+    chispa.style.top = `${clientY - caja.top - arena.clientTop}px`;
+    arena.append(chispa);
+    chispa.animate(
+      [{ transform: 'translateY(0)', opacity: 1 }, { transform: 'translateY(-44px)', opacity: 0 }],
+      { duration: 650, easing: 'ease-out' }
+    ).finished.then(() => chispa.remove());
+  }
+
+  // pointerdown cuenta al instante (mouse, dedo o pluma) y evita que mantener Enter sume clics.
+  diana.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    if (!jugando || performance.now() - inicio >= DURACION_MS) return;
+    clics++;
+    $('clics').textContent = clics;
+    mostrarMasUno(e.clientX, e.clientY);
+    moverDiana();
+  });
+  diana.addEventListener('contextmenu', (e) => e.preventDefault());
+
+  function terminar() {
+    if (!jugando) return;
+    jugando = false;
+    cancelAnimationFrame(rafId);
+    clearTimeout(finTimeout);
+    actualizarTiempo(0);
+    diana.hidden = true;
+    puntajeFinal = clics;
+    anunciar('¡Tiempo!');
+
+    $('nombre-final').textContent = jugador;
+    $('puntaje-final').textContent = puntajeFinal;
+    $('puntaje-unidad').textContent = puntajeFinal === 1 ? 'clic' : 'clics';
+    guardar();
+    setTimeout(() => {
+      aviso.hidden = true;
+      mostrar('final');
+    }, 900);
+  }
+
+  // ---------- Guardado ----------
+  function pintarEstado(estado, texto) {
+    $('estado').dataset.estado = estado;
+    $('estado-texto').textContent = texto;
+  }
+
+  function describirError(err) {
+    if (!err) return 'Error desconocido.';
+    const lineas = [err.message || String(err)];
+    if (err.code) lineas.push(`Código: ${err.code}`);
+    // En fallas de red, details trae el stack completo; basta con su primera línea.
+    const detalle = String(err.details ?? '').split('\n')[0];
+    if (detalle && detalle !== err.message) lineas.push(`Detalles: ${detalle}`);
+    if (err.hint) lineas.push(`Sugerencia: ${err.hint}`);
+    return lineas.join('\n');
+  }
+
+  async function guardar() {
+    if (guardando) return;
+    guardando = true;
+    $('btn-otra-vez').hidden = true;
+    $('btn-reintentar').hidden = true;
+    $('estado-detalle').hidden = true;
+    pintarEstado('guardando', 'Guardando tu puntaje…');
+    try {
+      const supabase = await clientePromise;
+      const { error } = await supabase
+        .from('puntajes')
+        .insert({ juego: JUEGO, jugador, puntaje: puntajeFinal, oficial: OFICIAL });
+      if (error) throw error;
+      pintarEstado('ok', 'Puntaje guardado');
+    } catch (err) {
+      pintarEstado('error', 'No se pudo guardar el puntaje');
+      $('estado-detalle').textContent = describirError(err);
+      $('estado-detalle').hidden = false;
+      $('btn-reintentar').hidden = false;
+    } finally {
+      guardando = false;
+      $('btn-otra-vez').hidden = false;
+    }
+  }
+
+  $('btn-reintentar').addEventListener('click', () => guardar());
+  $('btn-otra-vez').addEventListener('click', prepararJuego);
+
+  // ---------- Arranque ----------
+  colgarBanderines();
+  addEventListener('resize', () => {
+    colgarBanderines();
+    // Si la arena se encogió, que la diana no quede fuera de alcance.
+    if (jugando && (ultimaPos.x > arena.clientWidth - diana.offsetWidth || ultimaPos.y > arena.clientHeight - diana.offsetHeight)) {
+      moverDiana();
+    }
+  });
+</script>
+</body>
+</html>
